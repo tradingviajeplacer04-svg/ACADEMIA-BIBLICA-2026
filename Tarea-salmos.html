@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarea El Libro de los Salmos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #2d3436;
+        }
+        .serif { font-family: 'Playfair Display', serif; }
+        .parchment {
+            background-color: #fdf6e3;
+            border: 1px solid #e6dfc6;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            background-image: radial-gradient(#efe4cc 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .gold-text { color: #b8860b; }
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #b8860b);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full">
+        <div class="parchment rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            
+            <!-- Header Section -->
+            <header class="text-center mb-10">
+                <img src="https://raw.githubusercontent.com/tradingviajeplacer04-svg/IGLESIA-VARIOS/main/Copia%20de%20Logo%201.png"
+                     alt="Logo" 
+                     class="w-40 mx-auto mb-6 object-contain" />
+                <h1 class="serif text-4xl gold-text mb-3">Clase 4 Los Salmos</h1>
+                <p class="text-gray-600 italic text-sm">Repasando la Clase</p>
+                
+                <div class="mt-8">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <p id="stepIndicator" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Pregunta 1 de 7</p>
+                        <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-1 rounded-full font-bold uppercase border border-amber-200">
+                            ⚠ Recuerda solo una respuesta es la correcta
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="quiz-container">
+                <div id="question-area" class="min-h-[320px]">
+                    <h2 id="question-text" class="text-2xl font-bold mb-2 text-gray-800 leading-tight"></h2>
+                    
+                    <div id="options-grid" class="grid gap-4">
+                        <!-- Options injected via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-10 flex justify-between items-center border-t pt-8 border-gray-300">
+                    <div class="flex flex-col">
+                        <span id="score-live" class="text-sm font-bold text-gray-700">Aciertos: 0</span>
+                    </div>
+                    <button id="next-btn" onclick="handleNext()" class="bg-gray-800 text-white px-10 py-3 rounded-xl hover:bg-black transition-all shadow-lg font-bold disabled:opacity-20 disabled:cursor-not-allowed" disabled>
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+
+            <div id="results-area" class="hidden text-center py-10">
+                <div class="mb-10">
+                    <div id="result-icon" class="text-7xl mb-6">📜</div>
+                    <h2 class="serif text-4xl mb-4">Evaluación Final</h2>
+                    <div id="final-score-display" class="text-6xl font-bold gold-text mb-4">0/7</div>
+                    <div class="bg-white/40 p-6 rounded-2xl border border-gray-200 mb-8">
+                        <p id="final-grade-note" class="text-gray-800 leading-relaxed italic"></p>
+                    </div>
+
+                    <div id="corrections-container" class="text-left space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Corrections will be injected here -->
+                    </div>
+                </div>
+                <button onclick="location.reload()" class="bg-amber-800 text-white px-12 py-4 rounded-2xl hover:bg-amber-900 transition-all font-bold shadow-xl">
+                    Reiniciar Estudio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Quién es el autor más prolífico de los Salmos y cuántos se le atribuyen?",
+                options: [
+                    "Salomón, con 127 salmos identificados.",
+                    "David, con 73 salmos identificados.",
+                    "Asaf, con 12 salmos identificados.",
+                    "Esdras, con 150 salmos identificados."
+                ],
+                correct: 1
+            },
+            {
+                q: "¿Qué período de tiempo cubren técnicamente los salmos?",
+                options: [
+                    "100 años, durante el reinado de David.",
+                    "2000 años, desde Adán hasta Malaquías.",
+                    "1000 años, desde Moisés (1500 a.C.) hasta el postexilio (500 a.C.).",
+                    "500 años, exclusivamente la época de los Reyes."
+                ],
+                correct: 2
+            },
+            {
+                q: "¿Cuál es la 'palabra clave' y el 'capítulo clave' del libro?",
+                options: [
+                    "Justicia / Salmo 1",
+                    "Alabanza / Salmo 23",
+                    "Ley / Salmo 119",
+                    "Sabiduría / Salmo 19"
+                ],
+                correct: 1
+            },
+            {
+                q: "¿Por qué los Salmos no se interpretan como prosa?",
+                options: [
+                    "Porque son leyes literales sin metáforas.",
+                    "Porque son crónicas históricas estrictas.",
+                    "Porque son poesía con figuras de dicción y paralelismos.",
+                    "Porque fueron escritos en un código secreto."
+                ],
+                correct: 2
+            },
+            {
+                q: "¿Cuál era el propósito de los salmos de 'peregrinación'?",
+                options: [
+                    "Ser cantados en funerales reales.",
+                    "Acompañar a los israelitas en su ascenso a Jerusalén para las fiestas.",
+                    "Guiar a los ejércitos en tiempos de guerra.",
+                    "Enseñar a los niños en las escuelas de los profetas."
+                ],
+                correct: 1
+            },
+            {
+                q: "¿Qué caracteriza a los salmos imprecatorios?",
+                options: [
+                    "Son poemas de amor y celebración nupcial.",
+                    "Son peticiones de juicio sobre los enemigos de Dios.",
+                    "Son cánticos de agradecimiento por la cosecha.",
+                    "Son oraciones exclusivas de arrepentimiento."
+                ],
+                correct: 1
+            },
+            {
+                q: "¿Quién es el editor final comúnmente identificado?",
+                options: [
+                    "El Rey David.",
+                    "El profeta Isaías.",
+                    "El escriba Esdras.",
+                    "El apóstol Pablo."
+                ],
+                correct: 2
+            }
+        ];
+
+        let currentStep = 0;
+        let score = 0;
+        let selectedOption = null;
+        let userChoices = [];
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const progressFill = document.getElementById('progressFill');
+        const stepIndicator = document.getElementById('stepIndicator');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreLive = document.getElementById('score-live');
+
+        function loadQuestion() {
+            const data = questions[currentStep];
+            selectedOption = null;
+            nextBtn.disabled = true;
+            nextBtn.innerText = currentStep === questions.length - 1 ? "Ver Resultados" : "Siguiente";
+            
+            questionText.innerText = data.q;
+            stepIndicator.innerText = `Pregunta ${currentStep + 1} de ${questions.length}`;
+            progressFill.style.width = `${((currentStep) / questions.length) * 100}%`;
+            
+            optionsGrid.innerHTML = '';
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-5 rounded-2xl border-2 border-gray-200 bg-white/60 hover:bg-white flex items-center gap-4 group";
+                btn.innerHTML = `
+                    <span class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-black text-gray-400 group-hover:bg-amber-800 group-hover:text-white transition-all">${String.fromCharCode(65 + idx)}</span>
+                    <span class="flex-1 font-medium text-gray-700">${opt}</span>
+                `;
+                btn.onclick = () => selectOption(idx, btn);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx, element) {
+            Array.from(optionsGrid.children).forEach(child => {
+                child.classList.remove('border-amber-600', 'bg-amber-50', 'ring-2', 'ring-amber-200');
+                child.querySelector('span').classList.remove('bg-amber-800', 'text-white');
+                child.querySelector('span').classList.add('bg-gray-100', 'text-gray-400');
+            });
+            
+            element.classList.add('border-amber-600', 'bg-amber-50', 'ring-2', 'ring-amber-200');
+            const icon = element.querySelector('span');
+            icon.classList.remove('bg-gray-100', 'text-gray-400');
+            icon.classList.add('bg-amber-800', 'text-white');
+            
+            selectedOption = idx;
+            nextBtn.disabled = false;
+        }
+
+        function handleNext() {
+            userChoices.push(selectedOption);
+            
+            if (selectedOption === questions[currentStep].correct) {
+                score++;
+            }
+            scoreLive.innerText = `Aciertos: ${score}`;
+
+            if (currentStep < questions.length - 1) {
+                currentStep++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-area').classList.remove('hidden');
+            progressFill.style.width = "100%";
+            
+            const finalDisplay = document.getElementById('final-score-display');
+            const noteDisplay = document.getElementById('final-grade-note');
+            const iconDisplay = document.getElementById('result-icon');
+            const correctionsContainer = document.getElementById('corrections-container');
+            
+            finalDisplay.innerText = `${score} / ${questions.length}`;
+            
+            // Generate corrections list
+            correctionsContainer.innerHTML = '<h3 class="font-bold text-amber-900 mb-4 border-b border-amber-200 pb-2">Revisión de respuestas:</h3>';
+            
+            questions.forEach((q, index) => {
+                const isCorrect = userChoices[index] === q.correct;
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} mb-3`;
+                
+                card.innerHTML = `
+                    <p class="text-sm font-bold mb-2 text-gray-800">${index + 1}. ${q.q}</p>
+                    <div class="text-xs space-y-1">
+                        <p class="${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                            <span class="font-bold">Tu respuesta:</span> ${q.options[userChoices[index]]}
+                            ${isCorrect ? ' ✓' : ' ✗'}
+                        </p>
+                        ${!isCorrect ? `
+                        <p class="text-green-700 font-bold">
+                            <span>Respuesta correcta:</span> ${q.options[q.correct]}
+                        </p>` : ''}
+                    </div>
+                `;
+                correctionsContainer.appendChild(card);
+            });
+            
+            let note = "";
+            let icon = "";
+            
+            if (score === 7) {
+                note = "¡Excelencia Teológica! Has dominado cada detalle sobre la autoría, estructura y propósito de los Salmos. Tu comprensión de la poesía hebrea es excepcional.";
+                icon = "🏺";
+            } else if (score >= 5) {
+                note = "¡Muy buen conocimiento! Tienes una base sólida sobre el Salterio. Conoces bien a los autores y la cronología del libro.";
+                icon = "📖";
+            } else if (score >= 3) {
+                note = "Buen intento. Has captado los conceptos generales, pero te animamos a profundizar más en los géneros literarios (como los imprecatorios) y las fechas históricas.";
+                icon = "📜";
+            } else {
+                note = "Es un buen comienzo para estudiar. El Libro de los Salmos es un tesoro de 1000 años de historia; te invitamos a releer las introducciones para afianzar estos datos.";
+                icon = "🌱";
+            }
+            
+            iconDisplay.innerText = icon;
+            noteDisplay.innerText = note;
+        }
+
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
