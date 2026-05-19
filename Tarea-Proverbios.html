@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarea Proverbios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .smooth-transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-4 sm:p-8">
+
+    <div id="app" class="max-w-3xl mx-auto pb-20">
+        <!-- El contenido se renderizará aquí dinámicamente -->
+    </div>
+
+    <script>
+        // --- DATOS Y PREGUNTAS ---
+        const questions = [
+            {
+                id: 1,
+                title: "Autoría",
+                question: "¿Quiénes son los autores principales mencionados en el libro de Proverbios?",
+                options: [
+                    "Solo el rey Salomón, debido a su gran sabiduría.",
+                    "Salomón (capítulos 1-29), Agur (cap. 30) y el rey Lemuel (cap. 31).",
+                    "David, Salomón y los profetas mayores."
+                ],
+                correctAnswer: 1,
+                explanation: "El documento indica que Salomón escribió la mayor parte, mientras que los dos últimos capítulos fueron escritos por Agur y Lemuel."
+            },
+            {
+                id: 2,
+                title: "Contexto Histórico",
+                question: "¿A qué fecha aproximada se le asigna la redacción principal del libro?",
+                options: [
+                    "Alrededor del 950 a.C.",
+                    "Alrededor del 1050 a.C.",
+                    "En el año 722 a.C."
+                ],
+                correctAnswer: 0,
+                explanation: "Por cuanto la mayor parte fue escrita por Salomón, se le asigna una fecha aproximada de 950 a.C."
+            },
+            {
+                id: 3,
+                title: "Concepto Clave",
+                question: "¿Qué idea principal conlleva la raíz de la palabra «proverbio»?",
+                options: [
+                    "Memorizar y repetir.",
+                    "Cantar o recitar con música.",
+                    "Gobernar o regir."
+                ],
+                correctAnswer: 2,
+                explanation: "La raíz conlleva la idea de «gobernar» o «regir», indicando que son dichos para gobernar nuestras vidas."
+            },
+            {
+                id: 4,
+                title: "Definición de Sabiduría",
+                question: "Según el texto, la sabiduría no es solo cuestión de intelecto. ¿Cómo se define?",
+                options: [
+                    "Tener mucho conocimiento general y retenerlo.",
+                    "Contemplar la vida y el yo desde la perspectiva de Dios.",
+                    "Lograr riquezas y éxito material a través del trabajo."
+                ],
+                correctAnswer: 1,
+                explanation: "Reside en contemplar la vida desde la perspectiva de Dios, la única verdadera y válida."
+            },
+            {
+                id: 5,
+                title: "Estructura Literaria",
+                question: "Al ser un libro poético, ¿cuál es el elemento interpretativo clave en Proverbios?",
+                options: [
+                    "La metáfora continua.",
+                    "La rima consonante.",
+                    "El paralelismo (sinónimo, antitético, sintético)."
+                ],
+                correctAnswer: 2,
+                explanation: "El paralelismo es el elemento clave, identificándose frecuentemente con palabras como «y», «pero», «mas», o «como»."
+            },
+            {
+                id: 6,
+                title: "Respuesta Humana",
+                question: "De los cuatro grupos de personas, ¿cómo se describe al «escarnecedor»?",
+                options: [
+                    "Es cínico y sarcástico acerca de la sabiduría de Dios.",
+                    "No escucha y es engañado fácilmente por creer lo que quiere.",
+                    "Ha rechazado la sabiduría y como resultado es torpe moralmente."
+                ],
+                correctAnswer: 0,
+                explanation: "El escarnecedor es cínico y sarcástico, haciendo imposible que viva rectamente. (El simple es el engañado, y el necio el torpe)."
+            },
+            {
+                id: 7,
+                title: "El Principio Fundamental",
+                question: "¿Cuál es la frase clave que se repite más de doce veces en el libro y representa la base para vivir sabiamente?",
+                options: [
+                    "El amor al prójimo.",
+                    "El temor de Jehová.",
+                    "El trabajo diligente."
+                ],
+                correctAnswer: 1,
+                explanation: "«El temor de Jehová» significa tener una perspectiva apropiada de Dios, resultando en una relación correcta con Él."
+            }
+        ];
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        let answers = {};
+
+        // --- ÍCONOS SVG ---
+        const icons = {
+            bookOpen: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`,
+            checkCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+            xCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+            info: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+            award: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>`,
+            helpCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
+        };
+
+        // --- LÓGICA DE EVALUACIÓN ---
+        function getScore() {
+            let score = 0;
+            for (const qId in answers) {
+                const q = questions.find(q => q.id === parseInt(qId));
+                if (q && answers[qId] === q.correctAnswer) score++;
+            }
+            return score;
+        }
+
+        function getEvaluationMessage(score) {
+            if (score === 7) return { title: "¡Sabiduría Perfecta!", desc: "Excelente trabajo. Tienes un entendimiento muy claro de los temas principales de Proverbios.", color: "text-emerald-400" };
+            if (score >= 5) return { title: "¡Muy Buen Desempeño!", desc: "Has comprendido la mayor parte del texto. Un pequeño repaso te hará alcanzar la perfección.", color: "text-blue-400" };
+            if (score >= 3) return { title: "Buen Intento", desc: "Conoces algunos conceptos básicos, pero te sugerimos volver a leer el documento para afianzar el conocimiento.", color: "text-yellow-400" };
+            return { title: "¡Sigue Aprendiendo!", desc: "La sabiduría se adquiere paso a paso. Te animamos a repasar completamente la introducción a Proverbios.", color: "text-rose-400" };
+        }
+
+        // --- EVENTOS ---
+        window.handleSelect = function(questionId, optionIndex) {
+            if (answers[questionId] !== undefined) return; // Prevenir cambios si ya se respondió
+            
+            answers[questionId] = optionIndex;
+            render(); // Re-renderizar la vista con el nuevo estado
+
+            // Si se responden todas, hacer scroll automático hacia abajo
+            if (Object.keys(answers).length === questions.length) {
+                setTimeout(() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 300);
+            }
+        };
+
+        window.resetApp = function() {
+            answers = {};
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- RENDERIZADO HTML DINÁMICO ---
+        function render() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            // 1. Header
+            html += `
+                <div class="bg-gradient-to-br from-indigo-900 to-purple-800 rounded-3xl shadow-2xl overflow-hidden mb-12">
+                    <div class="p-10 text-center">
+                        <div class="w-16 h-16 text-indigo-200 mx-auto mb-4">${icons.bookOpen}</div>
+                        <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">Libro de Proverbios</h1>
+                        <p class="text-lg text-indigo-100 max-w-xl mx-auto">
+                            Infografía de Autoevaluación. Pon a prueba tus conocimientos sobre la sabiduría, propósito y estructura literaria de este libro bíblico.
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            // 2. Timeline Wrapper
+            html += `<div class="max-w-2xl mx-auto relative">`;
+            // Línea central de la infografía
+            html += `<div class="absolute left-6 sm:left-8 top-0 bottom-0 w-1 bg-indigo-200 rounded-full z-0"></div>`;
+
+            // 3. Renderizar cada pregunta
+            questions.forEach((q, index) => {
+                const isAnswered = answers[q.id] !== undefined;
+                const isCorrect = answers[q.id] === q.correctAnswer;
+                
+                // Estilos del nodo (círculo numérico)
+                let nodeClass = 'bg-indigo-600 shadow-md';
+                if (isAnswered) nodeClass = isCorrect ? 'bg-emerald-500' : 'bg-rose-500';
+
+                // Estilos de la tarjeta
+                let cardClass = 'border-transparent hover:shadow-xl';
+                if (isAnswered) cardClass = isCorrect ? 'border-emerald-200' : 'border-rose-200';
+
+                html += `
+                    <div class="relative z-10 mb-12 pl-16 sm:pl-20 pr-2">
+                        <!-- Nodo -->
+                        <div class="absolute left-2 sm:left-4 top-6 w-9 h-9 rounded-full flex items-center justify-center font-bold text-white border-4 border-slate-50 transition-colors duration-300 ${nodeClass}">
+                            ${index + 1}
+                        </div>
+
+                        <!-- Tarjeta -->
+                        <div class="bg-white rounded-2xl shadow-lg border-2 overflow-hidden smooth-transition ${cardClass}">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                                <span class="text-sm font-bold uppercase tracking-wider text-indigo-600 flex items-center gap-2">
+                                    <div class="w-4 h-4">${icons.helpCircle}</div> ${q.title}
+                                </span>
+                            </div>
+
+                            <div class="p-6">
+                                <p class="text-xl font-medium text-slate-800 mb-6 leading-relaxed">${q.question}</p>
+                                <div class="space-y-3">
+                `;
+
+                // Renderizar opciones de la pregunta
+                q.options.forEach((option, optIndex) => {
+                    const isSelected = answers[q.id] === optIndex;
+                    const isThisCorrect = q.correctAnswer === optIndex;
+                    
+                    let btnStyle = "bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 border-slate-200 cursor-pointer";
+                    let iconHtml = `<div class="w-5 h-5 rounded-full border-2 border-current opacity-50"></div>`;
+
+                    if (isAnswered) {
+                        btnStyle = "bg-slate-50 text-slate-400 border-slate-100 opacity-60 cursor-default"; // Deshabilitado por defecto
+                        if (isThisCorrect) {
+                            btnStyle = "bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-500 cursor-default";
+                            iconHtml = `<div class="w-5 h-5 text-emerald-600">${icons.checkCircle}</div>`;
+                        } else if (isSelected && !isThisCorrect) {
+                            btnStyle = "bg-rose-50 text-rose-800 border-rose-300 cursor-default";
+                            iconHtml = `<div class="w-5 h-5 text-rose-600">${icons.xCircle}</div>`;
+                        }
+                    }
+
+                    html += `
+                        <button 
+                            onclick="handleSelect(${q.id}, ${optIndex})"
+                            ${isAnswered ? 'disabled' : ''}
+                            class="w-full text-left p-4 rounded-xl border smooth-transition flex items-start gap-3 ${btnStyle}">
+                            <div class="flex-shrink-0 mt-0.5">${iconHtml}</div>
+                            <span class="font-medium">${option}</span>
+                        </button>
+                    `;
+                });
+
+                html += `</div>`; // Fin de opciones
+
+                // Renderizar Explicación si está respondida
+                if (isAnswered) {
+                    const explBg = isCorrect ? 'bg-emerald-50 text-emerald-900' : 'bg-rose-50 text-rose-900';
+                    const explTitle = isCorrect ? '¡Correcto!' : 'Respuesta incorrecta';
+                    
+                    html += `
+                        <div class="mt-6 p-4 rounded-xl flex gap-3 text-sm animate-fade-in ${explBg}">
+                            <div class="w-5 h-5 flex-shrink-0 mt-0.5">${icons.info}</div>
+                            <div>
+                                <p class="font-bold mb-1">${explTitle}</p>
+                                <p class="opacity-90">${q.explanation}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`; // Fin Timeline Wrapper
+
+            // 4. Renderizar Resultado Final si todas están respondidas
+            if (Object.keys(answers).length === questions.length) {
+                const score = getScore();
+                const evalData = getEvaluationMessage(score);
+
+                html += `
+                    <div class="max-w-2xl mx-auto mt-12 animate-fade-in">
+                        <div class="bg-indigo-900 text-white rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+                            <div class="absolute -top-10 -right-10 opacity-10 w-64 h-64">${icons.award}</div>
+                            
+                            <div class="w-16 h-16 text-yellow-400 mx-auto mb-4 relative z-10">${icons.award}</div>
+                            <h2 class="text-3xl font-bold mb-2 relative z-10">¡Evaluación Completada!</h2>
+                            <p class="text-indigo-200 mb-6 text-lg relative z-10">Has repasado los puntos clave de Proverbios.</p>
+                            
+                            <div class="inline-block bg-white/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/20 relative z-10">
+                                <p class="text-5xl font-extrabold text-white">
+                                    ${score} <span class="text-2xl text-indigo-200 font-medium">/ ${questions.length}</span>
+                                </p>
+                                <p class="text-sm text-indigo-200 mt-2 font-medium uppercase tracking-wider">Aciertos</p>
+                            </div>
+                            
+                            <div class="mt-8 max-w-md mx-auto bg-white/5 rounded-xl p-6 border border-white/10 relative z-10">
+                                <h3 class="text-xl font-bold mb-2 ${evalData.color}">${evalData.title}</h3>
+                                <p class="text-indigo-100 text-sm leading-relaxed">${evalData.desc}</p>
+                            </div>
+
+                            <div class="mt-8 relative z-10">
+                                <button 
+                                    onclick="resetApp()"
+                                    class="bg-white text-indigo-900 font-bold py-3 px-8 rounded-full hover:bg-indigo-50 transform hover:scale-105 transition-all shadow-lg cursor-pointer">
+                                    Reintentar Infografía
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            app.innerHTML = html;
+        }
+
+        // Iniciar la aplicación en la primera carga
+        render();
+
+    </script>
+</body>
+</html>
