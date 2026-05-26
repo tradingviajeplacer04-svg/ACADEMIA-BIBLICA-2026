@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario: Eclesiastés</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animaciones suaves para las transiciones */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-btn {
+            transition: all 0.2s;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 font-sans text-slate-800">
+
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Cabecera -->
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Cuestionario: Libro de Eclesiastés</h1>
+            <p class="text-indigo-200 mt-2">Pon a prueba tu conocimiento sobre este texto bíblico</p>
+        </div>
+
+        <!-- Contenedor Principal del Cuestionario -->
+        <div id="quiz-container" class="p-6 md:p-8">
+            
+            <!-- Progreso -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm font-medium text-slate-500 mb-2">
+                    <span id="question-counter">Pregunta 1 de 7</span>
+                    <span id="score-display">Puntuación: 0</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 14.28%"></div>
+                </div>
+            </div>
+
+            <!-- Pregunta -->
+            <div id="question-area" class="fade-in">
+                <h2 id="question-text" class="text-xl font-semibold mb-6">¿Pregunta?</h2>
+                
+                <!-- Opciones -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Las opciones se generarán dinámicamente aquí -->
+                </div>
+            </div>
+
+            <!-- Área de Feedback (Oculta por defecto) -->
+            <div id="feedback-area" class="mt-6 hidden p-4 rounded-lg border">
+                <h3 id="feedback-title" class="font-bold text-lg mb-1"></h3>
+                <p id="feedback-text" class="text-slate-700"></p>
+                <button id="next-btn" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados (Oculta por defecto) -->
+        <div id="results-container" class="p-6 md:p-8 text-center hidden fade-in">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-3xl font-bold mb-2">¡Cuestionario Completado!</h2>
+            <p class="text-lg text-slate-600 mb-6">Has respondido correctamente <span id="final-score" class="font-bold text-indigo-600">0</span> de <span id="total-questions" class="font-bold">7</span> preguntas.</p>
+            
+            <div id="result-message" class="p-4 bg-slate-50 rounded-lg mb-8 font-medium">
+                <!-- Mensaje de felicitación o ánimo -->
+            </div>
+
+            <button id="restart-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition duration-200">
+                Volver a Intentarlo
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Datos del cuestionario basados en el documento
+        const quizData = [
+            {
+                question: "Según el texto, ¿qué significa etimológicamente el término «Eclesiastés»?",
+                options: [
+                    "Predicador",
+                    "Rey sabio",
+                    "Constructor",
+                    "Vanidad"
+                ],
+                correctIndex: 0,
+                rationale: "El término proviene del griego y se refiere a alguien que se dirige o habla a una asamblea o congregación ('predicador')."
+            },
+            {
+                question: "¿Cuál de las siguientes opciones describe una evidencia interna de que el rey Salomón es el autor del libro?",
+                options: [
+                    "El autor menciona explícitamente su nombre «Salomón» en el primer versículo del texto.",
+                    "Se identifica como «hijo de David, rey en Jerusalén» y menciona poseer gran sabiduría y riquezas.",
+                    "El texto fue descubierto arqueológicamente junto a la tumba del rey David.",
+                    "El libro detalla la división del reino de Israel que ocurrió tras su muerte."
+                ],
+                correctIndex: 1,
+                rationale: "Las descripciones y logros (sabiduría, obras y riquezas) mencionados por el autor coinciden exactamente con el perfil y la vida de Salomón según el relato bíblico."
+            },
+            {
+                question: "¿En qué etapa de su vida escribió Salomón este libro, según el documento?",
+                options: [
+                    "En su juventud, antes de asumir el trono de Israel.",
+                    "Inmediatamente después de recibir el don divino de la sabiduría.",
+                    "Durante la época de mayor auge en la construcción del gran templo.",
+                    "Hacia el final de su vida, tras haberse apartado de Dios y experimentado la vacuidad."
+                ],
+                correctIndex: 3,
+                rationale: "El libro es el fruto de una reflexión madura tras haber pecado, buscado sentido en lo terrenal y, finalmente, experimentar el arrepentimiento al final de su vida."
+            },
+            {
+                question: "En el contexto de la obra, ¿qué describe la expresión teológica «vanidad de vanidades»?",
+                options: [
+                    "Un veredicto general y pesimista que afirma que la vida no tiene ningún sentido.",
+                    "La falta de valor monetario real que tienen las riquezas materiales ante la eternidad.",
+                    "La vacuidad y el descontento de una vida que se vive de forma apartada de Dios.",
+                    "El orgullo desmedido y la soberbia que caracterizaba a los reyes de la antigüedad."
+                ],
+                correctIndex: 2,
+                rationale: "No es una condena a la vida en general, sino que ilustra que, sin una relación con el Creador, los logros y placeres terrenales resultan vacíos."
+            },
+            {
+                question: "¿Qué denota la frase recurrente «debajo del sol» y con qué frecuencia aparece en el texto?",
+                options: [
+                    "Aparece 12 veces; se refiere a la esperanza del autor en un futuro terrenal brillante.",
+                    "Aparece 7 veces; describe el juicio inminente de Dios desde el cielo.",
+                    "Aparece 40 veces; alude a las duras condiciones de trabajo y el clima árido de la región.",
+                    "Aparece 27 veces; representa los razonamientos del hombre secular que ve la vida desde un plano estrictamente natural."
+                ],
+                correctIndex: 3,
+                rationale: "El autor utiliza esta frase repetidamente (27 veces) para enfatizar la perspectiva humana limitada al mundo material, excluyendo la realidad espiritual."
+            },
+            {
+                question: "¿Cuál es el enfoque «secular» o la premisa oculta que utilizó Salomón al redactar Eclesiastés?",
+                options: [
+                    "Adoptó una postura secular para empatizar con el inconverso y demostrar que lo terrenal por sí solo no da felicidad permanente.",
+                    "Escribió el libro exclusivamente utilizando términos filosóficos griegos para llegar a los intelectuales.",
+                    "Ocultó deliberadamente su identidad al principio para evitar que lo juzgaran por sus pecados pasados.",
+                    "Argumentó inicialmente que el trabajo duro y las riquezas son el único camino verdadero hacia la paz mental."
+                ],
+                correctIndex: 0,
+                rationale: "Salomón se puso 'al nivel' del hombre natural o secular para guiarlo lógicamente hacia la conclusión de que se necesita a Dios para tener verdadera plenitud."
+            },
+            {
+                question: "A pesar del tono aparentemente pesimista, ¿cuál es la conclusión positiva y el deber supremo del hombre según el epílogo del libro?",
+                options: [
+                    "Acumular la mayor cantidad de sabiduría para ser recordado por las futuras generaciones.",
+                    "Temer a Dios y obedecer sus mandamientos.",
+                    "Disfrutar desmedidamente de los placeres de la vida porque todo termina en la tumba.",
+                    "Aislarse de la sociedad para evitar el sufrimiento que causa el trabajo bajo el sol."
+                ],
+                correctIndex: 1,
+                rationale: "Esta es la conclusión final de Salomón: que el propósito, el sentido y el gozo del ser humano se encuentran en reverenciar a Dios y vivir conforme a su voluntad."
+            }
+        ];
+
+        // Estado de la aplicación
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // Elementos del DOM
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const feedbackAreaEl = document.getElementById('feedback-area');
+        const feedbackTitleEl = document.getElementById('feedback-title');
+        const feedbackTextEl = document.getElementById('feedback-text');
+        const nextBtnEl = document.getElementById('next-btn');
+        const quizContainerEl = document.getElementById('quiz-container');
+        const resultsContainerEl = document.getElementById('results-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const resultMessageEl = document.getElementById('result-message');
+        const restartBtnEl = document.getElementById('restart-btn');
+        const questionAreaEl = document.getElementById('question-area');
+
+        // Inicializar el cuestionario
+        function initQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizContainerEl.classList.remove('hidden');
+            resultsContainerEl.classList.add('hidden');
+            updateUI();
+            loadQuestion();
+        }
+
+        // Cargar pregunta actual
+        function loadQuestion() {
+            answered = false;
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Animación de entrada
+            questionAreaEl.classList.remove('fade-in');
+            void questionAreaEl.offsetWidth; // Forzar reflow
+            questionAreaEl.classList.add('fade-in');
+
+            questionTextEl.textContent = currentQuestion.question;
+            optionsContainerEl.innerHTML = '';
+            feedbackAreaEl.classList.add('hidden');
+
+            // Crear botones de opciones
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn w-full text-left p-4 rounded-lg border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-white';
+                button.innerHTML = `<div class="flex items-start">
+                    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 font-bold mr-3">${String.fromCharCode(65 + index)}</span>
+                    <span class="mt-1">${option}</span>
+                </div>`;
+                
+                button.onclick = () => selectAnswer(index, button);
+                optionsContainerEl.appendChild(button);
+            });
+
+            updateUI();
+        }
+
+        // Manejar selección de respuesta
+        function selectAnswer(selectedIndex, selectedButton) {
+            if (answered) return; // Evitar múltiples selecciones
+            answered = true;
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuestion.correctIndex;
+            const allButtons = optionsContainerEl.querySelectorAll('button');
+
+            // Deshabilitar todos los botones y aplicar estilos
+            allButtons.forEach((btn, index) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-500', 'hover:bg-indigo-50');
+                
+                // Mostrar respuesta correcta
+                if (index === currentQuestion.correctIndex) {
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                    btn.querySelector('span.bg-slate-100').classList.replace('bg-slate-100', 'bg-green-500');
+                    btn.querySelector('span.bg-green-500').classList.replace('text-slate-600', 'text-white');
+                } 
+                // Mostrar si la respuesta seleccionada fue incorrecta
+                else if (index === selectedIndex && !isCorrect) {
+                    btn.classList.add('border-red-500', 'bg-red-50');
+                    btn.querySelector('span.bg-slate-100').classList.replace('bg-slate-100', 'bg-red-500');
+                    btn.querySelector('span.bg-red-500').classList.replace('text-slate-600', 'text-white');
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Actualizar puntuación
+            if (isCorrect) {
+                score++;
+                feedbackTitleEl.textContent = '¡Correcto!';
+                feedbackTitleEl.className = 'font-bold text-lg mb-1 text-green-700';
+                feedbackAreaEl.className = 'mt-6 p-4 rounded-lg border border-green-200 bg-green-50 fade-in';
+            } else {
+                feedbackTitleEl.textContent = 'Incorrecto';
+                feedbackTitleEl.className = 'font-bold text-lg mb-1 text-red-700';
+                feedbackAreaEl.className = 'mt-6 p-4 rounded-lg border border-red-200 bg-red-50 fade-in';
+            }
+
+            feedbackTextEl.textContent = currentQuestion.rationale;
+            
+            // Cambiar texto del botón si es la última pregunta
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtnEl.textContent = 'Ver Resultados Finales';
+            } else {
+                nextBtnEl.textContent = 'Siguiente Pregunta';
+            }
+
+            feedbackAreaEl.classList.remove('hidden');
+            scoreDisplayEl.textContent = `Puntuación: ${score}`;
+        }
+
+        // Pasar a la siguiente pregunta o finalizar
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Mostrar pantalla final
+        function showResults() {
+            quizContainerEl.classList.add('hidden');
+            resultsContainerEl.classList.remove('hidden');
+            
+            finalScoreEl.textContent = score;
+            totalQuestionsEl.textContent = quizData.length;
+
+            const percentage = (score / quizData.length) * 100;
+            
+            if (percentage === 100) {
+                resultMessageEl.innerHTML = '<span class="text-green-600">¡Excelente! Tienes un dominio perfecto del tema.</span>';
+                resultMessageEl.className = 'p-4 bg-green-100 rounded-lg mb-8 font-medium';
+            } else if (percentage >= 70) {
+                resultMessageEl.innerHTML = '<span class="text-indigo-600">¡Muy buen trabajo! Has asimilado bien los conceptos.</span>';
+                resultMessageEl.className = 'p-4 bg-indigo-100 rounded-lg mb-8 font-medium';
+            } else {
+                resultMessageEl.innerHTML = '<span class="text-amber-600">Buen intento. Te sugiero repasar un poco más el documento.</span>';
+                resultMessageEl.className = 'p-4 bg-amber-100 rounded-lg mb-8 font-medium';
+            }
+        }
+
+        // Actualizar UI (contadores y barras)
+        function updateUI() {
+            questionCounterEl.textContent = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+            const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+            
+            // Si estamos en una pregunta, mostramos un mínimo de progreso
+            let currentProgress = progressPercentage === 0 ? (1/quizData.length)*100 : progressPercentage + (1/quizData.length)*100;
+            if(currentProgress > 100) currentProgress = 100;
+
+            progressBarEl.style.width = `${currentProgress}%`;
+        }
+
+        // Event Listeners
+        nextBtnEl.addEventListener('click', nextQuestion);
+        restartBtnEl.addEventListener('click', initQuiz);
+
+        // Iniciar la app
+        initQuiz();
+    </script>
+</body>
+</html>
