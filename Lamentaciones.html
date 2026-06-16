@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario: Libro de Lamentaciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #4f46e5;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            background-color: white;
+            color: #374151;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .option-btn.selected {
+            background-color: #e0e7ff;
+            border-color: #4f46e5;
+        }
+        .option-btn.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+        .option-btn.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+        #rationale-container {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            border-left: 4px solid #4f46e5;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #4338ca;
+        }
+        .btn-primary:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            height: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4f46e5;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        #results-screen {
+            display: none;
+            text-align: center;
+        }
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem auto;
+            border: 8px solid #4f46e5;
+        }
+        .score-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1 class="text-3xl font-bold">Cuestionario: Libro de Lamentaciones</h1>
+        <p class="mt-2 opacity-90">Pon a prueba tu conocimiento sobre su estructura y mensaje.</p>
+    </div>
+    
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="content">
+        <!-- Question Screen -->
+        <div id="question-screen">
+            <div class="flex justify-between items-center mb-6 text-gray-500 font-semibold">
+                <span id="question-counter">Pregunta 1 de 7</span>
+            </div>
+            
+            <h2 id="question-text" class="text-2xl font-bold mb-6"></h2>
+            
+            <div id="options-container" class="space-y-3">
+                <!-- Options will be injected here -->
+            </div>
+
+            <div id="rationale-container">
+                <h4 class="font-bold text-gray-800 mb-1">Explicación:</h4>
+                <p id="rationale-text" class="text-gray-700"></p>
+            </div>
+
+            <div class="nav-buttons">
+                <button id="check-btn" class="btn-primary w-full" disabled>Comprobar Respuesta</button>
+                <button id="next-btn" class="btn-primary w-full hidden">Siguiente Pregunta</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen">
+            <h2 class="text-3xl font-bold mb-8">¡Cuestionario Completado!</h2>
+            
+            <div class="score-circle">
+                <div class="score-text">
+                    <span id="score-display">0</span>/7
+                </div>
+            </div>
+            
+            <h3 id="feedback-message" class="text-xl font-semibold mb-6"></h3>
+            <p class="text-gray-600 mb-8">Has terminado la autoevaluación sobre el libro de Lamentaciones.</p>
+            
+            <button onclick="location.reload()" class="btn-primary">Intentar de Nuevo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "Según la tradición y las evidencias presentadas en el texto, ¿quién es considerado el autor del libro de Lamentaciones?",
+            options: [
+                { text: "El profeta Ezequiel, debido a las visiones de destrucción.", isCorrect: false, rationale: "Ezequiel fue contemporáneo del exilio, pero el texto no lo menciona como autor de Lamentaciones." },
+                { text: "El profeta Jeremías.", isCorrect: true, rationale: "Las introducciones en la Septuaginta, la Vulgata, la tradición hebrea y las similitudes con su libro profético apuntan a Jeremías." },
+                { text: "El rey David, ya que escribió muchos lamentos en los Salmos.", isCorrect: false, rationale: "David vivió siglos antes de la destrucción de Jerusalén en el 586 a.C." },
+                { text: "Un autor anónimo de la época del retorno del exilio.", isCorrect: false, rationale: "Aunque algunos estudiosos modernos debaten la autoría, el texto proporcionado afirma específicamente que fue Jeremías." }
+            ]
+        },
+        {
+            question: "¿Cuál es la característica literaria más singular de los primeros cuatro capítulos del libro de Lamentaciones?",
+            options: [
+                { text: "Están escritos en forma de diálogo entre Dios y el profeta.", isCorrect: false, rationale: "Lamentaciones no es principalmente un diálogo, sino un lamento expresado en poemas." },
+                { text: "Su disposición acróstica alfabética.", isCorrect: true, rationale: "Los capítulos 1 al 4 utilizan las 22 letras del alfabeto hebreo para iniciar los versículos de manera estructurada." },
+                { text: "El uso constante de rimas consonantes al final de cada verso.", isCorrect: false, rationale: "La poesía hebrea antigua no se basaba en rimas finales como la poesía occidental moderna, sino en el paralelismo y otras estructuras." },
+                { text: "La alternancia de capítulos en prosa y en poesía.", isCorrect: false, rationale: "El libro se compone de cinco poemas, no alterna con prosa." }
+            ]
+        },
+        {
+            question: "¿Por qué el autor pudo haber utilizado el estilo acróstico en el libro de Lamentaciones?",
+            options: [
+                { text: "Para ocultar un mensaje secreto sobre el rey de Babilonia.", isCorrect: false, rationale: "No hay evidencia en el texto de que el acróstico sirva como un código secreto." },
+                { text: "Para cumplir con una regla estricta de la poesía fúnebre babilónica.", isCorrect: false, rationale: "El acróstico es una característica de la poesía hebrea, no una imposición babilónica mencionada en el texto." },
+                { text: "Para servir como una ayuda mnemotécnica para sus compatriotas.", isCorrect: true, rationale: "El texto sugiere que Jeremías pudo usar este recurso para facilitar la memorización del poema entre los israelitas." },
+                { text: "Para demostrar su superioridad literaria frente a otros profetas.", isCorrect: false, rationale: "El propósito del libro es el lamento y el arrepentimiento, no la jactancia literaria." }
+            ]
+        },
+        {
+            question: "En el bosquejo de Lamentaciones, ¿cuál es el tema principal del capítulo 3, considerado el 'Capítulo Clave'?",
+            options: [
+                { text: "La esperanza que continúa en medio de la aflicción.", isCorrect: true, rationale: "El capítulo 3 es el centro del libro y enfatiza que la misericordia de Dios es el único consuelo, destacando que 'son nuevas cada mañana'." },
+                { text: "La descripción detallada del hambre durante el asedio.", isCorrect: false, rationale: "Aunque el hambre se menciona (especialmente en capítulos como el 2 y el 4), el tema central del capítulo 3 es la esperanza y la fidelidad de Dios." },
+                { text: "El recuento histórico de la caída de los muros de Jerusalén.", isCorrect: false, rationale: "El libro no es una crónica histórica detallada del asedio (eso se encuentra en 2 Reyes o Jeremías), sino la respuesta emocional al mismo." },
+                { text: "La confesión final de los pecados del pueblo.", isCorrect: false, rationale: "La confesión en oración es el tema principal del capítulo 5, no del 3." }
+            ]
+        },
+        {
+            question: "Según la descripción del libro, ¿qué evento histórico motiva el lamento del autor?",
+            options: [
+                { text: "La división del reino en Israel y Judá.", isCorrect: false, rationale: "La división del reino ocurrió siglos antes (aprox. 930 a.C.), mucho antes de la época de Jeremías." },
+                { text: "La plaga de langostas descrita en el libro de Joel.", isCorrect: false, rationale: "Lamentaciones trata sobre la destrucción de una ciudad por un ejército, no sobre un desastre natural." },
+                { text: "La destrucción de Jerusalén por el Imperio Babilónico.", isCorrect: true, rationale: "El libro fue escrito poco después de que Jerusalén fuera reducida a escombros por Babilonia en el 586 a.C." },
+                { text: "La crucifixión de Jesucristo.", isCorrect: false, rationale: "Lamentaciones fue escrito en el Antiguo Testamento, más de 500 años antes de Cristo." }
+            ]
+        },
+        {
+            question: "¿Cómo se describe a la ciudad de Jerusalén a lo largo del texto de Lamentaciones?",
+            options: [
+                { text: "Como un mero escenario pasivo donde ocurren los eventos.", isCorrect: false, rationale: "La ciudad tiene un rol mucho más activo en la poesía del libro." },
+                { text: "Como una fortaleza inexpugnable que finalmente resistió.", isCorrect: false, rationale: "El libro lamenta exactamente lo contrario: la ciudad fue destruida y no resistió." },
+                { text: "Como un lugar malvado que nunca debió existir.", isCorrect: false, rationale: "El autor siente un profundo dolor por la ciudad, recordando con tristeza cuando estaba 'llena de gente'." },
+                { text: "Es personificada y tratada como uno de los protagonistas.", isCorrect: true, rationale: "El texto indica que los protagonistas son Jeremías y la ciudad de Jerusalén, la cual es personificada, a menudo como una viuda desconsolada." }
+            ]
+        },
+        {
+            question: "¿Qué concepto resalta el autor sobre el carácter de Dios, incluso en medio del juicio descrito en Lamentaciones?",
+            options: [
+                { text: "Que Dios es distante y no se preocupa por el sufrimiento humano.", isCorrect: false, rationale: "El autor se dirige directamente a Dios, confiando en Su eventual misericordia, lo que indica que no lo ve distante." },
+                { text: "Que Dios fue injusto al permitir tal nivel de destrucción.", isCorrect: false, rationale: "El libro reconoce que la destrucción fue una consecuencia justa de los pecados del pueblo (Capítulo 4)." },
+                { text: "Que Dios es santo, justo y fiel.", isCorrect: true, rationale: "El texto subraya que a pesar del juicio abrumador, el poema reconoce el carácter santo, justo y fiel de Dios." },
+                { text: "Que Dios cambió de opinión respecto a Su pacto con Israel.", isCorrect: false, rationale: "La esperanza en las 'misericordias que son nuevas cada mañana' (3:22-23) demuestra confianza en la fidelidad continua del pacto de Dios." }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOptionIndex = null;
+    let isAnswerChecked = false;
+
+    // DOM Elements
+    const questionScreen = document.getElementById('question-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const questionCounter = document.getElementById('question-counter');
+    const progressBar = document.getElementById('progress-bar');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const rationaleContainer = document.getElementById('rationale-container');
+    const rationaleText = document.getElementById('rationale-text');
+    const checkBtn = document.getElementById('check-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const scoreDisplay = document.getElementById('score-display');
+    const feedbackMessage = document.getElementById('feedback-message');
+
+    function initQuiz() {
+        // Shuffle options for each question
+        quizData.forEach(q => {
+            q.options = q.options.sort(() => Math.random() - 0.5);
+        });
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const currentQuestion = quizData[currentQuestionIndex];
+        
+        // Reset state
+        selectedOptionIndex = null;
+        isAnswerChecked = false;
+        checkBtn.disabled = true;
+        checkBtn.classList.remove('hidden');
+        nextBtn.classList.add('hidden');
+        rationaleContainer.style.display = 'none';
+        
+        // Update UI
+        questionCounter.innerText = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+        const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+        
+        questionText.innerText = currentQuestion.question;
+        
+        // Render Options
+        optionsContainer.innerHTML = '';
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            button.innerText = option.text;
+            button.onclick = () => selectOption(index, button);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function selectOption(index, button) {
+        if (isAnswerChecked) return;
+
+        // Visual selection
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+
+        selectedOptionIndex = index;
+        checkBtn.disabled = false;
+    }
+
+    function checkAnswer() {
+        if (selectedOptionIndex === null || isAnswerChecked) return;
+        
+        isAnswerChecked = true;
+        const currentQuestion = quizData[currentQuestionIndex];
+        const selectedOption = currentQuestion.options[selectedOptionIndex];
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+        // Disable all buttons
+        buttons.forEach(btn => btn.disabled = true);
+
+        // Mark correct and incorrect
+        buttons.forEach((btn, index) => {
+            const option = currentQuestion.options[index];
+            if (option.isCorrect) {
+                btn.classList.add('correct');
+                // Remove selected class if it's the correct answer to avoid color clash
+                btn.classList.remove('selected'); 
+            } else if (index === selectedOptionIndex) {
+                btn.classList.add('incorrect');
+                btn.classList.remove('selected');
+            }
+        });
+
+        if (selectedOption.isCorrect) {
+            score++;
+        }
+
+        // Show rationale
+        rationaleText.innerText = selectedOption.rationale;
+        rationaleContainer.style.display = 'block';
+
+        // Toggle Buttons
+        checkBtn.classList.add('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        questionScreen.style.display = 'none';
+        resultsScreen.style.display = 'block';
+        progressBar.style.width = '100%';
+        
+        scoreDisplay.innerText = score;
+        
+        if (score === quizData.length) {
+            feedbackMessage.innerText = "¡Excelente! Tienes un conocimiento perfecto del texto.";
+            feedbackMessage.style.color = "#16a34a"; // green
+        } else if (score >= 5) {
+            feedbackMessage.innerText = "¡Muy buen trabajo! Comprendes muy bien los conceptos principales.";
+            feedbackMessage.style.color = "#4f46e5"; // indigo
+        } else if (score >= 3) {
+            feedbackMessage.innerText = "Buen intento. Un repaso al documento te ayudará a afianzar los detalles.";
+            feedbackMessage.style.color = "#ca8a04"; // yellow
+        } else {
+            feedbackMessage.innerText = "Sigue estudiando. Te recomiendo volver a leer el documento sobre Lamentaciones.";
+            feedbackMessage.style.color = "#dc2626"; // red
+        }
+    }
+
+    // Event Listeners
+    checkBtn.addEventListener('click', checkAnswer);
+    nextBtn.addEventListener('click', nextQuestion);
+
+    // Start Quiz
+    initQuiz();
+
+</script>
+</body>
+</html>
